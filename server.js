@@ -24,6 +24,12 @@ app.get("", (req, res) => {
   });
 });
 
+apiRoutes.get("", (req, res) => {
+  res.json({
+    messge: "Blogger API",
+  });
+});
+
 app.use("/api", apiRoutes);
 app.use("/admin", adminRoutes);
 
