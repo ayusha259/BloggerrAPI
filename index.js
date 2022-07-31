@@ -19,9 +19,7 @@ app.use(express.json());
 const apiRoutes = express.Router();
 
 app.get("", (req, res) => {
-  res.json({
-    message: "This is a bloggerr app api",
-  });
+  res.redirect("/api");
 });
 
 apiRoutes.get("", (req, res) => {
