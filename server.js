@@ -30,3 +30,5 @@ app.use(errHandler);
 app.listen(process.env.PORT, () => {
   console.log("Server started!");
 });
+
+export default app;
