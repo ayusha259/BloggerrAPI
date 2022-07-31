@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { compareSync, hashSync } from "bcrypt";
+import { compareSync } from "bcrypt";
 
 const userSchema = mongoose.Schema(
   {
@@ -66,14 +66,6 @@ const userSchema = mongoose.Schema(
   },
   { timestamps: true }
 );
-
-userSchema.pre("save", function (next) {
-  if (this.password) {
-    this.password = hashSync(this.password, 10);
-  }
-  return next();
-});
-
 userSchema.methods.comparePasswords = function (password) {
   return compareSync(password, this.password);
 };

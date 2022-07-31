@@ -4,6 +4,7 @@ import { generateToken } from "../utils/generateToken.js";
 import { Joi, validate } from "express-validation";
 import auth from "../middlewares/auth.js";
 import Blog from "../models/blogModel.js";
+import { hash, hashSync } from "bcrypt";
 
 const signUpValidator = {
   body: Joi.object({
@@ -66,10 +67,12 @@ router.post(
         throw new Error("User with this email already exists");
       }
 
+      const hashedPassword = hashSync(password, 10);
+
       const newUser = User({
         username,
         name,
-        password,
+        password: hashedPassword,
         email,
       });
 
