@@ -67,7 +67,7 @@ router.get("", async (req, res, next) => {
     const allBlogs = await Blog.find(
       category === "all" ? {} : { category: categoryItem._id }
     )
-      .select("user title body slug createdAt category")
+      .select("user title body slug createdAt category, cover_image")
       .populate("user", "username profile name")
       .populate("category", "title slug")
       .skip(per_page * (page - 1))
