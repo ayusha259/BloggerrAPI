@@ -57,7 +57,7 @@ router.get("", async (req, res, next) => {
     }
     let categoryItem;
     if (category !== "all") {
-      categoryItem = await Category.findOne({ title: category });
+      categoryItem = await Category.findOne({ slug: category });
       if (!categoryItem) {
         res.status(400);
         throw new Error("No category found");
