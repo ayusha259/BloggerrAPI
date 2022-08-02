@@ -55,6 +55,7 @@ router.get("", async (req, res, next) => {
       throw new Error("Page number is out of bounds");
     }
     const allBlogs = await Blog.find()
+      .populate("user", "username profile name")
       .skip(per_page * (page - 1))
       .limit(per_page)
       .sort(sort);
