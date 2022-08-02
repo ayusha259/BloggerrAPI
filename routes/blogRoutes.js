@@ -55,9 +55,17 @@ router.get("", async (req, res, next) => {
       res.status(400);
       throw new Error("Page number is out of bounds");
     }
+    let categoryItem;
+    if (category !== "all") {
+      categoryItem = await Category.findOne({ title: category });
+      if (!categoryItem) {
+        res.status(400);
+        throw new Error("No category found");
+      }
+    }
 
     const allBlogs = await Blog.find(
-      category === "all" ? {} : { category: category }
+      category === "all" ? {} : { category: categoryItem._id }
     )
       .select("user title body slug createdAt category")
       .populate("user", "username profile name")
