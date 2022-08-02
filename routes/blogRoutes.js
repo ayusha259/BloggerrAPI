@@ -48,15 +48,20 @@ router.get("", async (req, res, next) => {
     const page = Number(req.query.page) || 1;
     const per_page = Number(req.query.per_page) || 10;
     const sort = req.query.sort || "-createdAt";
+    const category = req.query.category || "all";
 
     const allBlogsCount = await Blog.find().count();
     if (page <= 0 || page > Math.ceil(allBlogsCount / per_page)) {
       res.status(400);
       throw new Error("Page number is out of bounds");
     }
-    const allBlogs = await Blog.find()
-      .select("user title body slug createdAt")
+
+    const allBlogs = await Blog.find(
+      category === "all" ? {} : { category: category }
+    )
+      .select("user title body slug createdAt category")
       .populate("user", "username profile name")
+      .populate("category", "title slug")
       .skip(per_page * (page - 1))
       .limit(per_page)
       .sort(sort);
