@@ -5,6 +5,7 @@ import adminRoutes from "./routes/adminRoutes.js";
 import blogRoutes from "./routes/blogRoutes.js";
 import connectDB from "./utils/database.js";
 import { notFound, errHandler } from "./middlewares/errHandler.js";
+import cors from "cors";
 
 dotenv.config();
 
@@ -15,6 +16,8 @@ connectDB();
 app.disable("x-powered-by");
 
 app.use(express.json());
+
+app.use(cors());
 
 const apiRoutes = express.Router();
 
