@@ -246,21 +246,36 @@ router.get("/savedblogs", auth, async (req, res, next) => {
   }
 });
 
-router.put("/savedblogs/:slug", auth, async (req, res, next) => {
+router.put("/savedblogs/:slug/:type", auth, async (req, res, next) => {
   try {
     const user_id = req.user;
     const slug = req.params.slug;
+    const type = req.params.type;
+    if (!(type === "save" || type === "unsave")) {
+      res.status(400);
+      throw new Error("Operation type can either be 'save' or 'unsave'");
+    }
     const user = await User.findById(user_id);
     const blog = await Blog.findOne({ slug: slug });
     if (!blog) {
       res.status(404);
       throw new Error("Blog Not Found");
     }
-    await user.update({
-      $push: { saved_blogs: blog },
-    });
+    if (type === "save") {
+      await user.update({
+        $set: {
+          saved_blogs: blog._id,
+        },
+      });
+    } else if (type === "unsave") {
+      await user.update({
+        $pull: {
+          saved_blogs: blog._id,
+        },
+      });
+    }
     res.status(200).json({
-      message: "Blog Saved",
+      message: type === "save" ? "Blog Saved" : "Blog Unsaved",
     });
   } catch (error) {
     next(error);
