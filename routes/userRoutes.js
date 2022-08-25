@@ -224,6 +224,49 @@ router.put("/update", auth, async (req, res, next) => {
   }
 });
 
+router.get("/savedblogs", auth, async (req, res, next) => {
+  try {
+    const user_id = req.user;
+    const user = await User.findById(user_id).populate({
+      path: "saved_blogs",
+      options: {
+        select: "user title body slug createdAt category, cover_image",
+      },
+      populate: [
+        { path: "user", options: { select: "profile name username" } },
+        { path: "category", options: { select: "title slug" } },
+      ],
+    });
+    const blogs = user["saved_blogs"];
+    res.status(200).json({
+      data: blogs,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.put("/savedblogs/:slug", auth, async (req, res, next) => {
+  try {
+    const user_id = req.user;
+    const slug = req.params.slug;
+    const user = await User.findById(user_id);
+    const blog = await Blog.findOne({ slug: slug });
+    if (!blog) {
+      res.status(404);
+      throw new Error("Blog Not Found");
+    }
+    await user.update({
+      $push: { saved_blogs: blog },
+    });
+    res.status(200).json({
+      message: "Blog Saved",
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.get("/:username", auth, async (req, res, next) => {
   try {
     const username = req.params.username;
