@@ -98,7 +98,9 @@ router.get("/category-list", async (req, res, next) => {
 router.get("/:slug", async (req, res, next) => {
   try {
     const blog_slug = req.params.slug;
-    const blog = await Blog.findOne({ slug: blog_slug });
+    const blog = await Blog.findOne({ slug: blog_slug })
+      .populate("user", "username profile name")
+      .populate("category", "title slug");
     if (!blog) {
       res.status(404);
       throw new Error("No Blog Found");
