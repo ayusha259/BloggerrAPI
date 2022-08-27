@@ -84,6 +84,11 @@ router.post(
 
       res.json({
         data: {
+          user_id: newUser._id,
+          name: newUser.name,
+          username: newUser.username,
+          email: newUser.email,
+          profile: newUser.profiel.url,
           token: token,
           expiresIn: decodeToken.exp,
         },
@@ -114,6 +119,11 @@ router.post(
         const decodeToken = jwt.decode(token);
         res.json({
           data: {
+            user_id: newUser._id,
+            name: user.name,
+            username: user.username,
+            email: user.email,
+            profile: user.profiel.url,
             token: token,
             expiresIn: decodeToken.exp,
           },
