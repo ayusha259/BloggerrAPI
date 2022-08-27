@@ -119,7 +119,7 @@ router.post(
         const decodeToken = jwt.decode(token);
         res.json({
           data: {
-            user_id: newUser._id,
+            user_id: user._id,
             name: user.name,
             username: user.username,
             email: user.email,
