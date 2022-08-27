@@ -123,7 +123,7 @@ router.post(
             name: user.name,
             username: user.username,
             email: user.email,
-            profile: user.profiel.url,
+            profile: user.profile.url,
             token: token,
             expiresIn: decodeToken.exp,
           },
