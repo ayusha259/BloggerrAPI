@@ -5,6 +5,7 @@ import { Joi, validate } from "express-validation";
 import auth from "../middlewares/auth.js";
 import Blog from "../models/blogModel.js";
 import { hash, hashSync } from "bcrypt";
+import jwt from "jsonwebtoken";
 
 const signUpValidator = {
   body: Joi.object({
@@ -79,10 +80,12 @@ router.post(
       newUser.save();
 
       const token = generateToken(newUser.id);
+      const decodeToken = jwt.decode(token);
 
       res.json({
         data: {
           token: token,
+          expiresIn: decodeToken.exp,
         },
         status: 200,
       });
@@ -108,9 +111,11 @@ router.post(
       const passwordMatch = user.comparePasswords(password);
       if (passwordMatch) {
         const token = generateToken(user.id);
+        const decodeToken = jwt.decode(token);
         res.json({
           data: {
             token: token,
+            expiresIn: decodeToken.exp,
           },
           status: 200,
         });
