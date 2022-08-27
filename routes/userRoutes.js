@@ -19,7 +19,7 @@ const signUpValidator = {
 const loginValidator = {
   body: Joi.object({
     username: Joi.string().required(),
-    password: Joi.string().min(8).max(30).required(),
+    password: Joi.string().required(),
   }),
 };
 
@@ -56,8 +56,8 @@ router.post(
   async (req, res, next) => {
     try {
       const { username, name, password, email } = req.body;
-      const useranemExists = await User.exists({ username: username });
-      if (useranemExists) {
+      const usernameExists = await User.exists({ username: username });
+      if (usernameExists) {
         res.status(400);
         throw new Error("User with this username already exists");
       }
@@ -70,14 +70,12 @@ router.post(
 
       const hashedPassword = hashSync(password, 10);
 
-      const newUser = User({
+      const newUser = await User.create({
         username,
         name,
         password: hashedPassword,
         email,
       });
-
-      newUser.save();
 
       const token = generateToken(newUser.id);
       const decodeToken = jwt.decode(token);
@@ -88,7 +86,7 @@ router.post(
           name: newUser.name,
           username: newUser.username,
           email: newUser.email,
-          profile: newUser.profiel.url,
+          profile: newUser.profile.url,
           token: token,
           expiresIn: decodeToken.exp,
         },
@@ -114,24 +112,24 @@ router.post(
         throw new Error("Email or username is invalid.");
       }
       const passwordMatch = user.comparePasswords(password);
-      if (passwordMatch) {
-        const token = generateToken(user.id);
-        const decodeToken = jwt.decode(token);
-        res.json({
-          data: {
-            user_id: user._id,
-            name: user.name,
-            username: user.username,
-            email: user.email,
-            profile: user.profile.url,
-            token: token,
-            expiresIn: decodeToken.exp,
-          },
-          status: 200,
-        });
-      } else {
+      if (!passwordMatch) {
+        res.status(400);
         throw new Error("Password is incorrect.");
       }
+      const token = generateToken(user.id);
+      const decodeToken = jwt.decode(token);
+      res.status(200).json({
+        data: {
+          user_id: user._id,
+          name: user.name,
+          username: user.username,
+          email: user.email,
+          profile: user.profile.url,
+          token: token,
+          expiresIn: decodeToken.exp,
+        },
+        status: 200,
+      });
     } catch (error) {
       next(error);
     }
@@ -163,6 +161,9 @@ router.get("/blogs", auth, async (req, res, next) => {
       throw new Error("Page number is out of bounds");
     }
     const user_blogs = await Blog.find({ user: user_id })
+      .select("user title body slug createdAt category cover_image likes")
+      .populate("user", "username profile name")
+      .populate("category", "title slug")
       .skip(per_page * (page - 1))
       .limit(per_page)
       .sort(sort);

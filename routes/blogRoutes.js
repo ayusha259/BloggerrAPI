@@ -67,7 +67,7 @@ router.get("", async (req, res, next) => {
     const allBlogs = await Blog.find(
       category === "all" ? {} : { category: categoryItem._id }
     )
-      .select("user title body slug createdAt category, cover_image")
+      .select("user title body slug createdAt category cover_image likes")
       .populate("user", "username profile name")
       .populate("category", "title slug")
       .skip(per_page * (page - 1))
@@ -100,7 +100,8 @@ router.get("/:slug", async (req, res, next) => {
     const blog_slug = req.params.slug;
     const blog = await Blog.findOne({ slug: blog_slug })
       .populate("user", "username profile name")
-      .populate("category", "title slug");
+      .populate("category", "title slug")
+      .populate("likes", "username profile name");
     if (!blog) {
       res.status(404);
       throw new Error("No Blog Found");
@@ -138,7 +139,7 @@ router.delete("/:slug", auth, async (req, res, next) => {
   }
 });
 
-router.get("/comments/:slug", auth, async (req, res, next) => {
+router.get("/:slug/comments", auth, async (req, res, next) => {
   try {
     const user_id = req.user;
     const blog = await Blog.findOne({ slug: req.params.slug });
