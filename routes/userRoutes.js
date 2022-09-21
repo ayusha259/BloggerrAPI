@@ -3,7 +3,7 @@ import User from "../models/userModel.js";
 import { generateToken } from "../utils/generateToken.js";
 import { Joi, validate } from "express-validation";
 import auth from "../middlewares/auth.js";
-import Blog from "../models/blogModel.js";
+import Blog, { Comment } from "../models/blogModel.js";
 import { hash, hashSync } from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -279,7 +279,7 @@ router.put("/savedblogs/:slug/:type", auth, async (req, res, next) => {
     }
     if (type === "save") {
       await user.update({
-        $set: {
+        $addToSet: {
           saved_blogs: blog._id,
         },
       });
@@ -292,6 +292,31 @@ router.put("/savedblogs/:slug/:type", auth, async (req, res, next) => {
     }
     res.status(200).json({
       message: type === "save" ? "Blog Saved" : "Blog Unsaved",
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/comments/requests", auth, async (req, res, next) => {
+  try {
+    const user_id = req.user;
+    let comments;
+    const userBlogs = await User.findById(user_id).select("blogs");
+    if (!userBlogs) {
+      res.status(400);
+      throw new Error("User Not Found");
+    }
+    comments = await Comment.find({
+      blog: { $in: userBlogs.blogs },
+      approved: { $eq: false },
+    })
+      .populate("user", "username name profile")
+      .populate("blog", "user title slug createdAt category cover_image")
+      .sort("-createdAt");
+    res.status(200).json({
+      data: comments,
+      status: 200,
     });
   } catch (error) {
     next(error);

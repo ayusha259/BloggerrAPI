@@ -74,6 +74,10 @@ router.get("", async (req, res, next) => {
       .limit(per_page)
       .sort(sort);
 
+    allBlogs["saved"] = true;
+
+    console.log(allBlogs);
+
     res.json({
       data: allBlogs,
       status: 200,
@@ -139,24 +143,24 @@ router.delete("/:slug", auth, async (req, res, next) => {
   }
 });
 
-router.get("/:slug/comments", auth, async (req, res, next) => {
+router.get("/:slug/comments", async (req, res, next) => {
   try {
-    const user_id = req.user;
+    // const user_id = req.user;
     const blog = await Blog.findOne({ slug: req.params.slug });
     if (!blog) {
       res.status(400);
       throw new Error("The blog does not exists");
     }
     let comments;
-    if (blog.user.toString() === user_id.toString()) {
-      comments = await Comment.find({ blog: blog._id })
-        .populate("user", "username name profile")
-        .sort("-createdAt");
-    } else {
-      comments = await Comment.find({ blog: blog._id, approved: { $eq: true } })
-        .populate("user", "username name profile")
-        .sort("-createdAt");
-    }
+    // if (blog.user.toString() === user_id.toString()) {
+    //   comments = await Comment.find({ blog: blog._id })
+    //     .populate("user", "username name profile")
+    //     .sort("-createdAt");
+    // } else {
+    comments = await Comment.find({ blog: blog._id, approved: { $eq: true } })
+      .populate("user", "username name profile")
+      .sort("-createdAt");
+    // }
     res.status(200).json({
       data: comments,
       status: 200,
