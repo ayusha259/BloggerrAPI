@@ -152,11 +152,6 @@ router.get("/:slug/comments", async (req, res, next) => {
       throw new Error("The blog does not exists");
     }
     let comments;
-    // if (blog.user.toString() === user_id.toString()) {
-    //   comments = await Comment.find({ blog: blog._id })
-    //     .populate("user", "username name profile")
-    //     .sort("-createdAt");
-    // } else {
     comments = await Comment.find({ blog: blog._id, approved: { $eq: true } })
       .populate("user", "username name profile")
       .sort("-createdAt");
@@ -178,9 +173,13 @@ router.post("/comments/:slug", auth, async (req, res, next) => {
       res.status(400);
       throw new Error("The blog does not exists");
     }
+
+    const isAuthor = user_id.toString() === blog.user.toString();
+
     const newComment = await Comment.create({
       blog: blog._id,
       user: user_id,
+      approved: isAuthor,
       body: req.body.body,
     });
     await blog.update({
