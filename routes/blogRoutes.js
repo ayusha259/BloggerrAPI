@@ -198,28 +198,47 @@ router.post("/comments/:slug", auth, async (req, res, next) => {
   }
 });
 
-router.put("/comments/approve/:id", auth, async (req, res, next) => {
+router.put("/comments/:type/:id", auth, async (req, res, next) => {
   try {
     const user_id = req.user;
+    const type = req.params.type;
+
+    if (!(type === "approve" || type === "deny")) {
+      res.status(400);
+      throw new Error("Operation type can either be 'approve' or 'deny'");
+    }
+
     const comment = await Comment.findById(req.params.id);
     if (!comment) {
       res.status(400);
       throw new Error("The comment does not exists");
     }
+
     const blog = await Blog.findById(comment.blog);
     if (!blog) {
       res.status(400);
       throw new Error("Blog not found");
     }
+
     if (blog.user.toString() === user_id.toString()) {
+      if (type === "deny") {
+        await Blog.findByIdAndDelete(req.params.id);
+        res.status(200).json({
+          status: 200,
+        });
+        return;
+      }
       await comment.update({
         approved: true,
       });
       await comment.save();
     } else {
       res.status(400);
-      throw new Error("Blog does not belongs to the current user");
+      throw new Error(
+        "Blog does not belongs to the current user, Not Authorized!"
+      );
     }
+
     res.status(200).json({
       status: 200,
     });
