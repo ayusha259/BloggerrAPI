@@ -222,7 +222,7 @@ router.put("/comments/:type/:id", auth, async (req, res, next) => {
 
     if (blog.user.toString() === user_id.toString()) {
       if (type === "deny") {
-        await Blog.findByIdAndDelete(req.params.id);
+        await Comment.findByIdAndDelete(req.params.id);
         res.status(200).json({
           status: 200,
         });
