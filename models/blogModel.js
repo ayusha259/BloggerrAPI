@@ -79,7 +79,10 @@ const blogSchema = mongoose.Schema(
         type: String,
       },
     },
-    category: [categorySchema],
+    category: {
+      type: mongoose.Types.ObjectId,
+      ref: "Category",
+    },
     tags: [
       {
         type: mongoose.Types.ObjectId,

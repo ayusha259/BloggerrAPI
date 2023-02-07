@@ -247,19 +247,4 @@ router.put("/comments/:type/:id", auth, async (req, res, next) => {
   }
 });
 
-router.get("/by-category/:category_slug", async  (req, res, next) => {
-  try {
-    const category = req.params.category_slug;
-    
-    const blogs = await Blog.find({'category.slug': category})
-    
-    res.status(200).json({
-      data: blogs,
-      message: "fetched blogs"
-    })
-  } catch (error) {
-    next(error)
-  }
-})
-
 export default router;
