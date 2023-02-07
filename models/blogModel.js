@@ -79,16 +79,18 @@ const blogSchema = mongoose.Schema(
         type: String,
       },
     },
-    category: {
-      type: mongoose.Types.ObjectId,
-      ref: "Category",
-    },
+    category: [categorySchema],
     tags: [
       {
         type: mongoose.Types.ObjectId,
         ref: "Tag",
       },
     ],
+    featured: {
+      type: Number,
+      default: 0,
+      enum: [1, 0]
+    }
   },
   { timestamps: true }
 );

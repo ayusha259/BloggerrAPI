@@ -1,6 +1,7 @@
 import express from "express";
-import { Category } from "../models/blogModel.js";
+import Blog, { Category } from "../models/blogModel.js";
 import { Joi, validate } from "express-validation";
+import { adminAuth } from "../middlewares/auth.js";
 
 const categoryValidator = {
   body: Joi.object({
@@ -10,12 +11,13 @@ const categoryValidator = {
 
 const router = express.Router();
 
-router.get("", (req, res, next) => {
+router.get("", adminAuth, (req, res, next) => {
   res.send("Admin Route");
 });
 
 router.post(
   "/category",
+  adminAuth,
   validate(categoryValidator, {}, {}),
   async (req, res, next) => {
     try {
@@ -41,5 +43,30 @@ router.post(
     }
   }
 );
+
+router.put("/blogs/feature/:slug", adminAuth, async (req, res, next) => {
+  try {
+    const blog = await Blog.findOne({slug: req.params.slug})
+    if(blog.featured === 1) {
+      await blog.update({
+        featured: 0
+      })
+      return res.status(200).json({
+        status: 200,
+        message: "Success removed from featured"
+      })
+    } else {
+      await blog.update({
+        featured: 1
+      })
+      return res.status(200).json({
+        status: 200,
+        message: "Success added to featured"
+      })
+    }
+  } catch (error) {
+    next(error)
+  }
+})
 
 export default router;

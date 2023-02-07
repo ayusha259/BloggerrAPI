@@ -77,7 +77,7 @@ router.post(
         email,
       });
 
-      const token = generateToken(newUser.id);
+      const token = generateToken(newUser.id, "basic");
       const decodeToken = jwt.decode(token);
 
       res.json({
@@ -116,7 +116,7 @@ router.post(
         res.status(400);
         throw new Error("Password is incorrect.");
       }
-      const token = generateToken(user.id);
+      const token = generateToken(user.id, user.role);
       const decodeToken = jwt.decode(token);
       res.status(200).json({
         data: {

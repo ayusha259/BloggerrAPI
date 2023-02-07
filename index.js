@@ -14,9 +14,7 @@ const app = express();
 connectDB();
 
 app.disable("x-powered-by");
-
 app.use(express.json());
-
 app.use(cors());
 
 const apiRoutes = express.Router();
@@ -27,7 +25,7 @@ app.get("", (req, res) => {
 
 apiRoutes.get("", (req, res) => {
   res.json({
-    messge: "Blogger API",
+    messge: "Blogger API for playing with different frameworks",
   });
 });
 
@@ -40,6 +38,8 @@ apiRoutes.use("/blogs", blogRoutes);
 app.use(notFound);
 app.use(errHandler);
 
-app.listen(process.env.PORT, () => {
-  console.log("Server started!");
+const PORT = process.env.PORT || 8000
+
+app.listen(PORT, () => {
+  console.log(`Server started at PORT ${PORT}!`);
 });

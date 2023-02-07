@@ -63,6 +63,11 @@ const userSchema = mongoose.Schema(
         ref: "Blog",
       },
     ],
+    role: {
+      type: String,
+      enum: ["basic", "admin"],
+      default: "basic"
+    }
   },
   { timestamps: true }
 );
